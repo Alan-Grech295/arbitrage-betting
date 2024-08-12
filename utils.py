@@ -45,8 +45,8 @@ def get_urls(base_link: str, sport: Literal["football", "basketball", "tennis", 
                 continue
 
             finished = tags.find_all('div', attrs={"class": 'table-main__finishedResults'})
-            live = tags.find_all('div', attrs={"class": 'table-table-main__liveResults'})
-            if len(finished) > 0 or len(live) > 0:
+            # live = tags.find_all('div', attrs={"class": 'table-table-main__liveResults'})
+            if len(finished) > 0:
                 continue
 
             spans = tags.find_all('p')

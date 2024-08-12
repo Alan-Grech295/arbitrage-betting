@@ -6,7 +6,8 @@ import pandas as pd
 
 from utils import get_links, get_odds, find_arbitage_bets, calculate_stake_return, get_urls
 
-pd.set_option('display.max_columns', 500)
+pd.set_option('display.max_columns', None)
+pd.set_option('display.max_colwidth', None)
 
 start_time = time.time()
 
