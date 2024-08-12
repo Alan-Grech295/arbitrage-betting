@@ -1,4 +1,6 @@
 # requests library is used to send HTTP requests in python
+import concurrent.futures.process
+import threading
 import time
 
 # Import Pandas library to create a dataframe
@@ -28,29 +30,61 @@ bookmakers = ["Betsson", "888sport", "UniBet", "betway"]
 #
 # print(links)
 
-
-compiled_odds = pd.DataFrame()
+global compiled_odds
+global times
 times = []
-# for league in links:
-links_left = len(links)
-for link, name in links:
-    start = time.perf_counter()
+compiled_odds = pd.DataFrame()
+writing_lock = threading.Lock()
 
+def find_odds(link, name):
+    global compiled_odds
     link = "https://www.betexplorer.com" + link
     odds = get_odds(link, name)
     if odds.empty:
-        continue
-    compiled_odds = pd.concat([compiled_odds, odds])
+        return
+    with writing_lock:
+        compiled_odds = pd.concat([compiled_odds, odds])
 
-    end = time.perf_counter() - start
-    times.append(end)
-    avg_time = sum(times) / len(times)
-    links_left -= 1
-    s_left = links_left * avg_time
+        end = time.perf_counter()
+        times.append(end)
+
+
+executor = concurrent.futures.ThreadPoolExecutor(10)
+futures = [executor.submit(find_odds, link, name) for link, name in links]
+for future in concurrent.futures.as_completed(futures):
+    diffs = []
+    if len(times) <= 1:
+        continue
+    for i in range(len(times) - 1):
+        diffs.append(times[i + 1] - times[i])
+
+    avg_time = sum(diffs) / len(diffs)
+    remaining = len(links) - len(times)
+    s_left = remaining * avg_time
     minutes, seconds = divmod(s_left, 60)
     minutes = int(minutes)
     seconds = int(seconds)
     print(f"Time left: {minutes}:{seconds:02}")
+
+# for league in links:
+# for link, name in links:
+#     start = time.perf_counter()
+#
+#     link = "https://www.betexplorer.com" + link
+#     odds = get_odds(link, name)
+#     if odds.empty:
+#         continue
+#     compiled_odds = pd.concat([compiled_odds, odds])
+#
+#     end = time.perf_counter() - start
+#     times.append(end)
+#     avg_time = sum(times) / len(times)
+#     links_left -= 1
+#     s_left = links_left * avg_time
+#     minutes, seconds = divmod(s_left, 60)
+#     minutes = int(minutes)
+#     seconds = int(seconds)
+#     print(f"Time left: {minutes}:{seconds:02}")
 
 # print(compiled_odds)
 
