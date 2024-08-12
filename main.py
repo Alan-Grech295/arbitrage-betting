@@ -19,8 +19,7 @@ url_retrieval = ['https://www.betexplorer.com/football/england/premier-league/'
                  'https://www.betexplorer.com/football/england/league-two/',
                  'https://www.betexplorer.com/football/england/national-league/']
 
-bookmakers = ["bet365", "Betsson", "1xBet", "UniBet",
-              "10x10bet", "Alphabet"]
+bookmakers = ["Betsson", "888sport", "UniBet", "betway"]
 
 # links = []
 # for url in url_retrieval:
@@ -62,7 +61,9 @@ print(arbitrage_bets)
 
 print("----------------------- STAKE & RETURN -----------------------")
 
-stake_return = calculate_stake_return(arbitrage_bets, 100)
+stake = float(input("How much to put at stake?"))
+
+stake_return = calculate_stake_return(arbitrage_bets, stake)
 print(stake_return.sort_values('Home Return', ascending=False))
 
 minutes, seconds = divmod(time.time() - start_time, 60)
